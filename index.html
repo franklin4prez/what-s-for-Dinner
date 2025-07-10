@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>What's for Dinner?</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .container:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .question-section {
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .question {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #555;
+            margin-bottom: 15px;
+            padding: 15px;
+            background: linear-gradient(90deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            border-radius: 10px;
+            text-align: center;
+        }
+
+        .ingredient-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .ingredient-option {
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .ingredient-option:hover {
+            background: #e3f2fd;
+            border-color: #2196f3;
+            transform: translateY(-2px);
+        }
+
+        .ingredient-option.selected {
+            background: linear-gradient(45deg, #4CAF50, #45a049);
+            color: white;
+            border-color: #4CAF50;
+        }
+
+        .custom-input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            font-size: 1em;
+            margin-top: 10px;
+            transition: border-color 0.3s ease;
+        }
+
+        .custom-input:focus {
+            outline: none;
+            border-color: #2196f3;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #FF6B6B, #4ECDC4);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .recipe-result {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 15px;
+            margin-top: 30px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+        }
+
+        .recipe-title {
+            font-size: 1.8em;
+            margin-bottom: 15px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .recipe-description {
+            font-size: 1.1em;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .recipe-link {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            padding: 12px 25px;
+            text-decoration: none;
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(5px);
+        }
+
+        .recipe-link:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e9ecef;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4CAF50, #45a049);
+            transition: width 0.5s ease;
+        }
+
+        .emoji {
+            font-size: 1.5em;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🍽️ What's for Dinner?</h1>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+
+        <div id="questionContainer">
+            <!-- Questions will be populated here -->
+        </div>
+
+        <div class="recipe-result hidden" id="recipeResult">
+            <div class="recipe-title" id="recipeTitle"></div>
+            <div class="recipe-description" id="recipeDescription"></div>
+            <a href="#" class="recipe-link" id="recipeLink" target="_blank">View Full Recipe</a>
+        </div>
+
+        <button class="btn" onclick="restartQuiz()">Start Over</button>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "🥩 What proteins do you have?",
+                options: ["Chicken", "Beef", "Pork", "Fish", "Eggs", "Tofu", "Beans", "None"],
+                key: "proteins"
+            },
+            {
+                question: "🥬 What vegetables are available?",
+                options: ["Onions", "Garlic", "Tomatoes", "Peppers", "Carrots", "Broccoli", "Spinach", "Potatoes"],
+                key: "vegetables"
+            },
+            {
+                question: "🍝 What carbs/grains do you have?",
+                options: ["Rice", "Pasta", "Bread", "Potatoes", "Quinoa", "Noodles", "Flour", "None"],
+                key: "carbs"
+            },
+            {
+                question: "🧄 What seasonings/condiments?",
+                options: ["Salt & Pepper", "Garlic Powder", "Soy Sauce", "Olive Oil", "Butter", "Hot Sauce", "Herbs", "Spices"],
+                key: "seasonings"
+            },
+            {
+                question: "🍽️ What type of meal do you prefer?",
+                options: ["Quick & Easy", "Comfort Food", "Healthy", "International", "Soup/Stew", "Stir-fry", "Pasta Dish", "Salad"],
+                key: "mealType"
+            }
+        ];
+
+        let currentQuestion = 0;
+        let userAnswers = {};
+
+        const recipes = {
+            "Chicken Rice": {
+                title: "🍚 Chicken Fried Rice",
+                description: "A quick and satisfying stir-fried rice dish with tender chicken, vegetables, and savory seasonings.",
+                url: "https://www.allrecipes.com/recipe/79543/fried-rice-restaurant-style/"
+            },
+            "Beef Pasta": {
+                title: "🍝 Beef Pasta Bolognese",
+                description: "Rich and hearty pasta with a meaty beef sauce, perfect for a comforting dinner.",
+                url: "https://www.allrecipes.com/recipe/158140/spaghetti-bolognese/"
+            },
+            "Vegetable Soup": {
+                title: "🥣 Hearty Vegetable Soup",
+                description: "A nutritious and warming soup packed with fresh vegetables and herbs.",
+                url: "https://www.allrecipes.com/recipe/13954/absolutely-ultimate-potato-soup/"
+            },
+            "Egg Stir-fry": {
+                title: "🥚 Vegetable Egg Stir-fry",
+                description: "Quick and protein-packed stir-fry with eggs and whatever vegetables you have on hand.",
+                url: "https://www.allrecipes.com/recipe/16354/basic-stir-fry/"
+            },
+            "Chicken Salad": {
+                title: "🥗 Grilled Chicken Salad",
+                description: "Fresh and healthy salad with grilled chicken, vegetables, and your favorite dressing.",
+                url: "https://www.allrecipes.com/recipe/14172/grilled-chicken-salad/"
+            },
+            "Fish Dish": {
+                title: "🐟 Pan-Seared Fish",
+                description: "Simple and elegant pan-seared fish with herbs and vegetables.",
+                url: "https://www.allrecipes.com/recipe/236382/pan-seared-salmon-with-fresh-fig-sauce/"
+            },
+            "Tofu Stir-fry": {
+                title: "🥢 Tofu Vegetable Stir-fry",
+                description: "Healthy and flavorful stir-fry with crispy tofu and fresh vegetables.",
+                url: "https://www.allrecipes.com/recipe/222575/tofu-stir-fry/"
+            },
+            "Comfort Food": {
+                title: "🍲 Hearty Comfort Stew",
+                description: "Warm and satisfying stew perfect for cozy evenings.",
+                url: "https://www.allrecipes.com/recipe/16354/basic-stir-fry/"
+            }
+        };
+
+        function displayQuestion() {
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestion];
+            
+            container.innerHTML = `
+                <div class="question-section">
+                    <div class="question">${question.question}</div>
+                    <div class="ingredient-grid">
+                        ${question.options.map(option => 
+                            `<div class="ingredient-option" onclick="toggleSelection(this, '${option}')">${option}</div>`
+                        ).join('')}
+                    </div>
+                    <input type="text" class="custom-input" placeholder="Add your own ingredients..." id="customInput">
+                </div>
+                <button class="btn" onclick="nextQuestion()">Next</button>
+            `;
+
+            updateProgress();
+        }
+
+        function toggleSelection(element, option) {
+            element.classList.toggle('selected');
+            
+            if (!userAnswers[questions[currentQuestion].key]) {
+                userAnswers[questions[currentQuestion].key] = [];
+            }
+            
+            const index = userAnswers[questions[currentQuestion].key].indexOf(option);
+            if (index > -1) {
+                userAnswers[questions[currentQuestion].key].splice(index, 1);
+            } else {
+                userAnswers[questions[currentQuestion].key].push(option);
+            }
+        }
+
+        function nextQuestion() {
+            const customInput = document.getElementById('customInput');
+            if (customInput.value.trim()) {
+                if (!userAnswers[questions[currentQuestion].key]) {
+                    userAnswers[questions[currentQuestion].key] = [];
+                }
+                userAnswers[questions[currentQuestion].key].push(customInput.value.trim());
+            }
+
+            currentQuestion++;
+            
+            if (currentQuestion < questions.length) {
+                displayQuestion();
+            } else {
+                generateRecipe();
+            }
+        }
+
+        function updateProgress() {
+            const progress = ((currentQuestion + 1) / questions.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function generateRecipe() {
+            const proteins = userAnswers.proteins || [];
+            const vegetables = userAnswers.vegetables || [];
+            const carbs = userAnswers.carbs || [];
+            const mealType = userAnswers.mealType || [];
+
+            let recipeKey = "Comfort Food"; // Default
+
+            // Logic to determine recipe based on ingredients
+            if (proteins.includes("Chicken") && carbs.includes("Rice")) {
+                recipeKey = "Chicken Rice";
+            } else if (proteins.includes("Beef") && carbs.includes("Pasta")) {
+                recipeKey = "Beef Pasta";
+            } else if (proteins.includes("Eggs")) {
+                recipeKey = "Egg Stir-fry";
+            } else if (proteins.includes("Fish")) {
+                recipeKey = "Fish Dish";
+            } else if (proteins.includes("Tofu")) {
+                recipeKey = "Tofu Stir-fry";
+            } else if (mealType.includes("Salad")) {
+                recipeKey = "Chicken Salad";
+            } else if (mealType.includes("Soup/Stew") || vegetables.length > 3) {
+                recipeKey = "Vegetable Soup";
+            }
+
+            const recipe = recipes[recipeKey];
+            
+            document.getElementById('questionContainer').classList.add('hidden');
+            document.getElementById('recipeResult').classList.remove('hidden');
+            document.getElementById('recipeTitle').textContent = recipe.title;
+            document.getElementById('recipeDescription').textContent = recipe.description;
+            document.getElementById('recipeLink').href = recipe.url;
+
+            updateProgress();
+        }
+
+        function restartQuiz() {
+            currentQuestion = 0;
+            userAnswers = {};
+            document.getElementById('questionContainer').classList.remove('hidden');
+            document.getElementById('recipeResult').classList.add('hidden');
+            displayQuestion();
+        }
+
+        // Initialize the quiz
+        displayQuestion();
+    </script>
+</body>
+</html>
